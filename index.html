@@ -7,6 +7,37 @@
     <script src="./js/script.js"></script>
 </head>
 <body>
+    <button class="add-book-btn">Add book</button>
+
+    <form action="submit">
+        <div>
+            <label for="author">Author:</label>
+            <input type="text" id="author" name="author">
+        </div>
+        <div>
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title">
+        </div>
+        <div>
+            <label for="pages">Pages:</label>
+            <input type="number" id="pages" name="pages">
+        </div>
+        <div class="radio-btn">
+            <p>Book read:</p>
+            <div>
+                <input type="radio" id="yes" name="bookRead">
+                <label for="yes">Yes</label>
+            </div>
+            <div>
+                <input type="radio" id="no" name="bookRead">
+                <label for="no">No</label>
+            </div>
+        </div>
+        <button>Add book</button>
+    </form>
     
+    <div class="book-display">
+
+    </div>
 </body>
 </html>
