@@ -42,9 +42,11 @@ function addBookToLibrary(info) {
     if (valid(info)){
         addLibrary(new Book(info));
         refreshDisplay();
+        return true;
     } else {
         //highlight empty inputs
         warnInputs();
+        return false;
     }
 }
 
@@ -70,6 +72,12 @@ function refreshDisplay() {
 
         let remBtn = makeElement('button','remove-card');
         remBtn.textContent = 'Remove';
+        remBtn.addEventListener('click',()=>{
+            while(card.firstChild){
+                card.removeChild(card.firstChild);
+            }
+            
+        });
 
         let toggleBtn = makeElement('button','toggle-read');
         toggleBtn.textContent = 'Toggle read';
@@ -120,8 +128,15 @@ function getBookInfo(index){
 
 function listenAddBook(){
     document.querySelector('.create-book').addEventListener('click',()=>{
-        console.log('clicked');        
+        (addBookToLibrary(getFormValues())? '' : alert('Not added, check inputs.'));
     });
 }
 
-listenAddBook();
+
+
+// so nothing gets excecuted before elements are created
+window.onload = function(){
+    listenAddBook();
+}
+
+/////////kazkaip sugalvok istrinti korta is masyvo
