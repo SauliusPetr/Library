@@ -1,7 +1,6 @@
-let myLibrary = [];
+let myLibrary = new Map();
 let bookInfo = ['Author', 'Title', 'Pages', 'Book read'];
-
-
+let bookId = 0;
 function Book(info) {
     this.author = info[0];
     this.title = info[1];
@@ -14,9 +13,6 @@ Book.prototype.equals = function(bookObj){
     this.pages === bookObj.pages &&
     this.bookRead === bookObj.bookRead);
 }
-Book.prototype.getIndex = function(){
-    return getLibrary().indexOf(this);
-}
 
 /* ----------------------------------------------- */
 
@@ -28,7 +24,15 @@ function getFormValues() {
     
     radio = (radio != null) ? radio.id : 'Not specified';
 
+    cleanInputs();
+
     return [author,title,pages,radio];
+}
+
+function cleanInputs(){
+    document.querySelectorAll('form input').forEach((item)=>{
+        item.value = '';
+    });
 }
 
 function valid(info) {
@@ -40,14 +44,21 @@ function valid(info) {
 
 function addBookToLibrary(info) {
     if (valid(info)){
-        addLibrary(new Book(info));
+        addLibrary(bookId++, new Book(info));
         refreshDisplay();
+
+        let form = document.querySelector('form');
+        form.classList.remove('show-form');
         return true;
     } else {
         //highlight empty inputs
-        warnInputs();
+        inputWarning();
         return false;
     }
+}
+
+function inputWarning(){
+    
 }
 
 function refreshDisplay() {
@@ -55,7 +66,7 @@ function refreshDisplay() {
 
     removeDisplayCont();
 
-    getLibrary().forEach(book => {
+   myLibrary.forEach((book,Id) => {
         let card = makeElement('div','card');
         
         let itemIndex = 0;
@@ -63,24 +74,25 @@ function refreshDisplay() {
         for (const key in book) {
             if(!book.hasOwnProperty(key)) continue;
             let item = makeElement('p','card-item');
-            item.textContent = `${getBookInfo(itemIndex)} : ${book[key]}`;
+            item.textContent = `${bookInfo[itemIndex]} : ${book[key]}`;
 
             card.appendChild(item);
             itemIndex++;
         }
-        let btnCont = makeElement('div','btn-content')
+        let btnCont = makeElement('div','btn-container')
 
         let remBtn = makeElement('button','remove-card');
         remBtn.textContent = 'Remove';
         remBtn.addEventListener('click',()=>{
-            while(card.firstChild){
-                card.removeChild(card.firstChild);
-            }
-            
+            removeBook(Id);
         });
 
         let toggleBtn = makeElement('button','toggle-read');
         toggleBtn.textContent = 'Toggle read';
+        toggleBtn.addEventListener('click',()=>{
+            toggleRead(Id);
+            refreshDisplay();
+        });
 
         btnCont.appendChild(remBtn);
         btnCont.appendChild(toggleBtn);
@@ -96,47 +108,62 @@ function makeElement(type,className){
     item.classList.add(className);
     return item;
 }
-
-function warnInputs() {
-
+function toggleRead(Id){
+    let status = myLibrary.get(Id).bookRead; 
+    myLibrary.get(Id).bookRead = (status === 'no')? 'yes': 
+    (status==='Not specified')? 'yes' : 'no';
 }
 
 function removeDisplayCont(){
     let container = document.querySelector('.book-display');
-    while(container.firstChild){
+        while(container.firstChild){
         container.removeChild(container.firstChild);
     }
+    
+    
 }
-function removeLibraryItem(index){
-    myLibrary = getLibrary().slice(0,index)
-        .concat(getLibrary().slice(index+1,getLibrary().length));
-
+function removeBook(Id){
+    myLibrary.delete(Id);
     refreshDisplay();
 }
-function clearLibrary(){
-    myLibrary = [];
-}
-function addLibrary(item){
-    myLibrary.push(item);
-}
-function getLibrary(){
-    return [...myLibrary];
-}
-function getBookInfo(index){
-    return bookInfo[index];
+function addLibrary(nr,item){
+    myLibrary.set(nr,item);
 }
 
-function listenAddBook(){
-    document.querySelector('.create-book').addEventListener('click',()=>{
-        (addBookToLibrary(getFormValues())? '' : alert('Not added, check inputs.'));
+function displayForm(){
+    let form = document.querySelector('form');
+    let body = document.querySelector('.body-container');
+
+    document.querySelector('.new-book').addEventListener('click',()=>{
+        form.classList.toggle('show-form');
+        body.classList.toggle('dim-background');
+    });
+     document.querySelector('.form-btn').addEventListener('click',()=>{
+        form.classList.remove('show-form');
+        body.classList.remove('dim-background');
+        cleanInputs();
     });
 }
 
 
 
+function listenForm(){
+    document.querySelector('.create-book').addEventListener('click',()=>{
+        (addBookToLibrary(getFormValues())? '' : alert('Not added, check inputs.'));
+    });
+
+    document.querySelector('.close-form').addEventListener('click',()=>{
+        document.querySelector('form').classList.remove('show-form');
+    });
+}
+
 // so nothing gets excecuted before elements are created
 window.onload = function(){
-    listenAddBook();
+    listenForm();
+    displayForm();
+    addBookToLibrary(['J.R.Tolkein' ,'The Hobbit', '200','yes']);
+    addBookToLibrary(['Michael Crichton' ,'Jurassic Park', '200','yes']);
+    addBookToLibrary(['Jhon Messier' ,'The Messier Objects', '180','yes']);
 }
 
 /////////kazkaip sugalvok istrinti korta is masyvo
